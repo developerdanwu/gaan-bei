@@ -10,6 +10,7 @@ import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { Slot } from "expo-router";
 import "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
@@ -25,16 +26,18 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <ClerkLoaded>
-        <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-          <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          >
-            <Slot />
-          </ThemeProvider>
-        </ConvexProviderWithClerk>
-      </ClerkLoaded>
-    </ClerkProvider>
+    <SafeAreaView>
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <ClerkLoaded>
+          <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+            <ThemeProvider
+              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+            >
+              <Slot />
+            </ThemeProvider>
+          </ConvexProviderWithClerk>
+        </ClerkLoaded>
+      </ClerkProvider>
+    </SafeAreaView>
   );
 }
