@@ -11,8 +11,10 @@
     "convex:dev": "npx convex dev"
   },
   "dependencies": {
+    "@auth/core": "^0.37.0",
     "@clerk/clerk-expo": "^2.17.0",
     "@clerk/types": "^4.95.0",
+    "@convex-dev/auth": "^0.0.90",
     "@expo/vector-icons": "^15.0.2",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
