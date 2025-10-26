@@ -5,6 +5,7 @@
   },
   "build": {
     "development": {
+      "node": "22.16.0",
       "ios": {
         "simulator": true
       },
@@ -12,9 +13,11 @@
       "distribution": "internal"
     },
     "preview": {
+      "node": "22.16.0",
       "distribution": "internal"
     },
     "production": {
+      "node": "22.16.0",
       "autoIncrement": true
     }
   },

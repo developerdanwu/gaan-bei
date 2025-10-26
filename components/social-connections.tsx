@@ -1,46 +1,34 @@
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
 import * as WebBrowser from "expo-web-browser";
-import { useColorScheme } from "nativewind";
 import * as React from "react";
 import { useEffect } from "react";
 import { Image, Platform, View, type ImageSourcePropType } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
-type SocialConnectionStrategy = Extract<
-  StartSSOFlowParams["strategy"],
-  "oauth_google" | "oauth_github" | "oauth_apple"
->;
+type SocialProvider = "google";
 
 const SOCIAL_CONNECTION_STRATEGIES: {
-  type: SocialConnectionStrategy;
+  provider: SocialProvider;
   source: ImageSourcePropType;
-  useTint?: boolean;
 }[] = [
   {
-    type: "oauth_apple",
-    source: { uri: "https://img.clerk.com/static/apple.png?width=160" },
-    useTint: true,
-  },
-  {
-    type: "oauth_google",
+    provider: "google",
     source: { uri: "https://img.clerk.com/static/google.png?width=160" },
-    useTint: false,
-  },
-  {
-    type: "oauth_github",
-    source: { uri: "https://img.clerk.com/static/github.png?width=160" },
-    useTint: true,
   },
 ];
 
 export function SocialConnections() {
   useWarmUpBrowser();
-  const { colorScheme } = useColorScheme();
 
-  function onSocialLoginPress(strategy: SocialConnectionStrategy) {
-    return async () => {};
+  function onSocialLoginPress(provider: SocialProvider) {
+    return async () => {
+      await authClient.signIn.social({
+        provider,
+        callbackURL: "/",
+      });
+    };
   }
 
   return (
@@ -48,26 +36,13 @@ export function SocialConnections() {
       {SOCIAL_CONNECTION_STRATEGIES.map((strategy) => {
         return (
           <Button
-            key={strategy.type}
+            key={strategy.provider}
             variant="outline"
             size="sm"
             className="sm:flex-1"
-            onPress={onSocialLoginPress(strategy.type)}
+            onPress={onSocialLoginPress(strategy.provider)}
           >
-            <Image
-              className={cn(
-                "size-4",
-                strategy.useTint && Platform.select({ web: "dark:invert" })
-              )}
-              tintColor={Platform.select({
-                native: strategy.useTint
-                  ? colorScheme === "dark"
-                    ? "white"
-                    : "black"
-                  : undefined,
-              })}
-              source={strategy.source}
-            />
+            <Image className="size-4" source={strategy.source} />
           </Button>
         );
       })}
@@ -75,17 +50,15 @@ export function SocialConnections() {
   );
 }
 
-const useWarmUpBrowser = Platform.select({
-  web: () => {},
-  default: () => {
-    useEffect(() => {
-      // Preloads the browser for Android devices to reduce authentication load time
-      // See: https://docs.expo.dev/guides/authentication/#improving-user-experience
-      void WebBrowser.warmUpAsync();
-      return () => {
-        // Cleanup: closes browser when component unmounts
-        void WebBrowser.coolDownAsync();
-      };
-    }, []);
-  },
-});
+const useWarmUpBrowser = () => {
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    // Preloads the browser for Android/iOS devices to reduce authentication load time
+    // See: https://docs.expo.dev/guides/authentication/#improving-user-experience
+    void WebBrowser.warmUpAsync();
+    return () => {
+      // Cleanup: closes browser when component unmounts
+      void WebBrowser.coolDownAsync();
+    };
+  }, []);
+};

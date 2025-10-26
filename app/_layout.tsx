@@ -2,7 +2,8 @@ import { authClient } from "@/lib/auth-client";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import { ConvexReactClient, useConvexAuth } from "convex/react";
 import { Stack } from "expo-router";
-import { Text } from "react-native";
+import { ActivityIndicator } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 
 const convex = new ConvexReactClient(
@@ -10,16 +11,32 @@ const convex = new ConvexReactClient(
 );
 
 function BaseApp() {
-  const { data: session } = authClient.useSession();
-  const { isLoading, isAuthenticated } = useConvexAuth();
-  console.log("isAuthenticated", isAuthenticated, session);
+  const { isLoading } = useConvexAuth();
 
   if (isLoading) {
-    return <Text> loading...</Text>;
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator size="small" />
+      </SafeAreaView>
+    );
   }
 
   return (
     <Stack>
+      <Stack.Screen
+        name="login"
+        options={{
+          headerShown: false,
+          title: "Login",
+          headerTitleAlign: "left",
+        }}
+      />
       <Stack.Screen
         name="(tabs)"
         options={{ headerShown: false, title: "Home" }}
@@ -31,7 +48,9 @@ function BaseApp() {
 export default function RootLayout() {
   return (
     <ConvexBetterAuthProvider authClient={authClient} client={convex}>
-      <BaseApp />
+      <SafeAreaProvider>
+        <BaseApp />
+      </SafeAreaProvider>
     </ConvexBetterAuthProvider>
   );
 }

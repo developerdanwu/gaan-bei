@@ -5,6 +5,7 @@ export default function Index() {
     <View
       style={{
         flex: 1,
+        backgroundColor: "white",
         justifyContent: "center",
         alignItems: "center",
       }}
